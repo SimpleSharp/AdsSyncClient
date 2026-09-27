@@ -54,9 +54,12 @@ The entire code is annotated with XML comments to make everything as clear as po
 
 ## .NET Data Object Requirements
 
+It is necessary for the properties to have the same names as the variables in the PLC's data structure.
+The supported data types are listed below (“Currently Supported Data Types”)
+
     public partial class MyDataModel : ObservableObject
     {
-        // ✅ Must implement INotifyPropertyChanged
+        // ✅ Must implement INotifyPropertyChanged / ObservableObjekt
         // ✅ Must be a class (not struct)
         // ✅ Must have matching public properties AND private fields
         
@@ -74,7 +77,8 @@ The entire code is annotated with XML comments to make everything as clear as po
 
 ## Quick Start (.NET)
 
-Create a data object with INotifyPropertyChanged / ObservableObject:
+Create a data object using `INotifyPropertyChanged` or `ObservableObject`. 
+You can use the same one for both reading and writing, or split it into two separate data objects
 
     // Your data models (must implement INotifyPropertyChanged)
     public partial class PlcDataModel : ObservableObject
@@ -137,7 +141,7 @@ In the application:
 
 ## Quick Start (TwinCAT)
 
-Create a STRUCT type:
+Create a `STRUCT` type:
 
     TYPE PlcDataModel :
     STRUCT
@@ -147,7 +151,7 @@ Create a STRUCT type:
     END_STRUCT
     END_TYPE
 
-In header of Main.prg:
+In header of `Main.prg`:
 
     PROGRAM MAIN
     VAR
@@ -165,16 +169,16 @@ In header of Main.prg:
     │  - Event aggregation (ConnectionError, CommunicationError)  │
     └───────────────────────┬─────────────────────────────────────┘
                             │
-            ┌───────────────┴───────────────┐
-            ▼                               ▼
+                ┌───────────┴─────────────────────────┐
+                ▼                                     ▼
     ┌─────────────────────────┐             ┌─────────────────────┐
-    │  AdsConnectionManager   │             │ AdsDataSynchronizer │
-    │  - Lifecycle management │             │ - Variable mapping  │
-    │  - Reconnection logic   │             │ - Handle generation │
-    │  - State monitoring (2s)│             │ - Read/Write ops    │
+    │ AdsConnectionManager    │             │ AdsDataSynchronizer │
+    │ - Lifecycle management  │             │ - Variable mapping  │
+    │ - Reconnection logic    │             │ - Handle generation │
+    │ - State monitoring (2s) │             │ - Read/Write ops    │
     └─────────────────────────┘             └─────────────────────┘
                                                       │
-                 ┌────────────────────────────────────┼──┐
+                 ┌──────────────────┌─────────────────┼──┐
                  ▼                  ▼                    ▼
           ┌────────────┐    ┌───────────────┐    ┌────────────────┐
           │Marshalling │    │ AdsReadMapper │    │ AdsWriteMapper │

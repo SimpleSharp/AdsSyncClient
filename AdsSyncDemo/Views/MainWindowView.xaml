@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:AdsSyncClientDemo.Views"
         xmlns:vm="clr-namespace:AdsSyncClientDemo.ViewModels"
         ResizeMode="NoResize"
+        Background="#303030"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="Ads Sync Client Demo" Height="450" Width="1000">
@@ -15,15 +16,15 @@
             <RowDefinition Height="10*" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="10*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="10*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="10*" />
             <RowDefinition Height="15*" />
             <RowDefinition Height="10*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="10*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="10*" />
             <RowDefinition Height="5*" />
         </Grid.RowDefinitions>
@@ -75,22 +76,26 @@
                    VerticalAlignment="Center" />
         <Border Grid.Row="3"
                 Grid.RowSpan="11"
-                BorderBrush="DarkGray"
-                BorderThickness="1"
+                Background="LightCyan"
+                CornerRadius="4"
                 Grid.Column="7">
             <ItemsControl ItemsSource="{Binding DataFromClientRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="3">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="90" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock
                                 Grid.Column="0"
-                                Text="{Binding Name}" />
+                                Foreground="Black"
+                                FontSize="14"
+                                Text="{Binding Name, StringFormat='{} {0}'}" />
                             <TextBlock
                                 Grid.Column="1"
+                                Foreground="Black"
+                                FontSize="14"
                                 Text="{Binding Value}" />
                         </Grid>
                     </DataTemplate>
@@ -105,24 +110,28 @@
                    VerticalAlignment="Center" />
         <Border Grid.Row="3"
                 Grid.RowSpan="11"
-                BorderBrush="DarkGray"
-                BorderThickness="1"
+                Background="LightCyan"
+                CornerRadius="4"
                 Grid.Column="5">
             <ItemsControl ItemsSource="{Binding DataToClientRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="3">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="90" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock
                                 Grid.Column="0"
-                                Text="{Binding Name}" />
+                                Foreground="Black"
+                                FontSize="14"
+                                Text="{Binding Name, StringFormat='{} {0}'}" />
 
                             <TextBlock
                                 Grid.Column="1"
+                                Foreground="Black"
+                                FontSize="14"
                                 Text="{Binding Value}" />
                         </Grid>
                     </DataTemplate>
@@ -145,14 +154,14 @@
                  Grid.Row="13"
                  Grid.Column="3"
                  IsReadOnly="True"
-                 Text="{Binding SyncClient.StateSoftware, FallbackValue='No ads client generated yet'}"
+                 Text="{Binding SyncClient.StateSoftware, FallbackValue='No ads client generated'}"
                  HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center" />
         <TextBox x:Name="TextBoxHardwareState"
                  Grid.Row="11"
                  Grid.Column="3"
                  IsReadOnly="True"
-                 Text="{Binding SyncClient.StateHardware, FallbackValue='No ads client generated yet'}"
+                 Text="{Binding SyncClient.StateHardware, FallbackValue='No ads client generated'}"
                  HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center" />
         <TextBlock x:Name="TextBlockHardwareState_Copy"
@@ -165,7 +174,7 @@
             Grid.Row="9"
             Grid.Column="3"
             IsReadOnly="True"
-            Text="{Binding SyncClient.IsConnected, FallbackValue='No ads client generated yet'}"
+            Text="{Binding SyncClient.IsConnected, FallbackValue='No ads client generated'}"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center" />
         <TextBlock x:Name="TextBlockPort"

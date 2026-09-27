@@ -5,6 +5,13 @@
              xmlns:converters="clr-namespace:AdsSyncClientDemo.Converters"
              Startup="OnStartup">
     <Application.Resources>
-        <converters:IsFalseConverter x:Key="IsFalseConverter" />
+        <ResourceDictionary>
+            <converters:IsFalseConverter x:Key="IsFalseConverter" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Button.xaml" />
+                <ResourceDictionary Source="Styles/TextBox.xaml" />
+                <ResourceDictionary Source="Styles/TextBlock.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

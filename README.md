@@ -50,6 +50,7 @@ The entire code is annotated with XML comments to make everything as clear as po
 * **AdsSync:** The library
 * **AdsSyncClientDemo:** A simple WPF MVVM application to illustrate the integration of the library
 * **AdsSyncClientPlcDemo:** A simple TwinCAT PLC application and the counterpart to AdsSyncClientDemo
+* **UnitTest:** a Unit test (work in progress) using XUnit
 
 
 ## .NET Data Object Requirements

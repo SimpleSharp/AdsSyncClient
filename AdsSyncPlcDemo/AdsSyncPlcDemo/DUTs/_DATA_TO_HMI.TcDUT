@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <DUT Name="_DATA_TO_HMI" Id="{32073099-dcaf-4ce2-a017-9ab23ea76acb}">
+    <Declaration><![CDATA[TYPE _DATA_TO_HMI :
+STRUCT
+	LifeBit		: BOOL;
+	TestArray	: ARRAY[0..9] OF BYTE;
+	TestString	: STRING;
+	TestDouble	: LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

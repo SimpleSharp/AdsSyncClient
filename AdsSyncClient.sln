@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12210.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdsSyncClientDemo", "AdsSyncDemo\AdsSyncClientDemo.csproj", "{52DF46D4-7D4A-9AB4-193F-85FF86A550D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdsSync", "AdsSync\AdsSync.csproj", "{24950A13-DB96-642C-6704-726F4B8F67B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E34BD8E-3950-4B37-A181-706BF470B0F2}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{52DF46D4-7D4A-9AB4-193F-85FF86A550D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52DF46D4-7D4A-9AB4-193F-85FF86A550D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52DF46D4-7D4A-9AB4-193F-85FF86A550D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52DF46D4-7D4A-9AB4-193F-85FF86A550D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24950A13-DB96-642C-6704-726F4B8F67B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24950A13-DB96-642C-6704-726F4B8F67B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24950A13-DB96-642C-6704-726F4B8F67B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24950A13-DB96-642C-6704-726F4B8F67B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C0BDFAD3-AFBC-4320-ABD9-B76A7D3238ED}
+	EndGlobalSection
+EndGlobal

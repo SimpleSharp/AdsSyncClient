@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.16">
+  <POU Name="MAIN" Id="{abc9f6d7-23f5-498e-b48b-d5e9ec6e522b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[GVL.DataToHmi.LifeBit			:= GVL.DataFromHmi.LifeBit;
+GVL.DataToHmi.TestArray			:= GVL.DataFromHmi.TestArray;
+GVL.DataToHmi.TestDouble		:= GVL.DataFromHmi.TestDouble;
+GVL.DataToHmi.TestString		:= GVL.DataFromHmi.TestString;]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="7" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

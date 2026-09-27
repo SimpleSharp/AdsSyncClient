@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+	<Description>Demo application for the AdsSyncClient library</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageProjectUrl>https://github.com/SimpleSharp/AdsWrapper</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/SimpleSharp/AdsWrapper</RepositoryUrl>
+	<PackageTags>ADS,TwinCAT,Beckhoff,Automation,PLC,IoT</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="7.0.339" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdsSync\AdsSync.csproj" />
+  </ItemGroup>
+
+</Project>

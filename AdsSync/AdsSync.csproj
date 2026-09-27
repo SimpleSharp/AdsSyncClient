@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<PackageId>AdsWrapper</PackageId>
+		<Version>0.1.0-pre</Version>
+		<Authors>SimpleSharp</Authors>
+		<Description>Simplified wrapper for Beckhoff TwinCAT ADS with automatic property synchronization</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/SimpleSharp/AdsWrapper</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/SimpleSharp/AdsWrapper</RepositoryUrl>
+		<PackageTags>ADS,TwinCAT,Beckhoff,Automation,PLC,IoT</PackageTags>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Beckhoff.TwinCAT.Ads" Version="7.0.339" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	</ItemGroup>
+
+</Project>

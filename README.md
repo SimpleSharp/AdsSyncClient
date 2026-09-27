@@ -187,12 +187,12 @@ In header of `Main.prg`:
 
 ## Currently supported Data Types
 
-    The `Marshalling.PropertyClassToMarshalledFieldClass` method automatically converts your .NET properties to ADS-compatible field structures at runtime using `System.Reflection.Emit`.
+The `Marshalling.PropertyClassToMarshalledFieldClass` method automatically converts your .NET properties to ADS-compatible field structures at runtime using `System.Reflection.Emit`.
 
 | .NET Type              | ADS type      | Notes                             |
 |------------------------|---------------|-----------------------------------|
-| `bool`                 | `UNINT (U1)`  | 1 byte                            |
-| `byte`                 | `UNSINT (U1)` | 1 byte                            |
+| `bool`                 | `BOOL (U1)`  | 1 byte                            |
+| `byte`                 | `BYTE (U1)` | 1 byte                            |
 | `short`                | `INT (I2)`    | 2 bytes, signed                   |
 | `int`                  | `DINT (I4)`   | 4 bytes, signed                   |
 | `long`                 | `LINT (I8)`   | 8 bytes, signed                   |

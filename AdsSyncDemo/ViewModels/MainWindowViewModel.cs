@@ -178,7 +178,7 @@ namespace AdsSyncClientDemo.ViewModels
                 {
                     DataToClient.Testdouble = Math.Round(DataToClient.Testdouble / 1.295, 3);
                 }
-                await Task.Delay(TimeSpan.FromMilliseconds(20));
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
             }
         }
 

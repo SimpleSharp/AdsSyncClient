@@ -2,6 +2,7 @@
 
 A .NET library for synchronized bidirectional data exchange between .NET applications and TwinCAT ADS clients.
 
+
 ## Overview
 
 **AdsSyncClient** provides a seamless synchronization mechanism between `.NET` objects (implementing `INotifyPropertyChanged`) and **Beckhoff TwinCAT** ADS variables. It handles the complete lifecycle of ADS connections, automatic reconnection, data marshalling, and real-time property synchronization with full async/await support. The goal of this library is to drastically simplify the integration of ADS into .NET applications.
@@ -9,6 +10,7 @@ A .NET library for synchronized bidirectional data exchange between .NET applica
 Perfect for industrial automation scenarios where you need reliable communication between HMI applications (WPF, Blazor, WinForms etc.) and PLC systems.
 
 The entire code is annotated with XML comments to make everything as clear as possible. Below is a quick-start guide that explains how to implement this library in your application.
+
 
 ## Key Features
 
@@ -22,6 +24,7 @@ The entire code is annotated with XML comments to make everything as clear as po
 | **Zero Boilerplate**      | Minimal setup, automatic variable handle management           |
 | **Error Handling**        | Event-based exception propagation for graceful error recovery |
 
+
 ## Requirements
 
  * .NET 8.0 or higher
@@ -29,6 +32,7 @@ The entire code is annotated with XML comments to make everything as clear as po
  * Beckhoff TwinCAT 3 XAR or Beckhoff TwinCAT 3 XAE (tested with version 4024.78)
  * Beckhoff.TwinCAT.Ads NuGet package
  * CommunityToolkit.Mvvm NuGet package
+
 
 ## Core Components
 
@@ -40,11 +44,13 @@ The entire code is annotated with XML comments to make everything as clear as po
 | **AdsReadMapper / AdsWriteMapper** | Direction-specific ADS operations                  |
 | **Marshalling**                    | Dynamic type generation for P/Invoke compatibility |
 
+
 ## Solution Structure
 
 * **AdsSync:** The library
 * **AdsSyncClientDemo:** A simple WPF MVVM application to illustrate the integration of the library
 * **AdsSyncClientPlcDemo:** A simple TwinCAT PLC application and the counterpart to AdsSyncClientDemo
+
 
 ## .NET Data Object Requirements
 
@@ -65,9 +71,10 @@ The entire code is annotated with XML comments to make everything as clear as po
         // ❌ Types must match exactly between property and field
     }
 
+
 ## Quick Start (.NET)
 
-Create a data object with INotifyPropertyChanged:
+Create a data object with INotifyPropertyChanged / ObservableObject:
 
     // Your data models (must implement INotifyPropertyChanged)
     public partial class PlcDataModel : ObservableObject
@@ -85,7 +92,7 @@ Create a data object with INotifyPropertyChanged:
         }
     }
 
-In the program:
+In the application:
 
     // Initialize the sync client
     PlcDataModel dataToSend = new();
@@ -127,7 +134,8 @@ In the program:
     await adsClient.StopSyncAsync();
     await adsClient.DisposeAsync();
 
-## Quick Start (TwínCAT)
+
+## Quick Start (TwinCAT)
 
 Create a STRUCT type:
 
@@ -147,29 +155,31 @@ In header of Main.prg:
         DataFromPlc	: PlcDataModel;
     END_VAR
 
+
 ## Architecture Overview
 
-┌─────────────────────────────────────────────────────────────┐
-│                      AdsSyncClient                          │
-│  - Public API for sync activation/deactivation              │
-│  - Connection state proxy (IsConnected, IsActive)           │
-│  - Event aggregation (ConnectionError, CommunicationError)  │
-└───────────────────────┬─────────────────────────────────────┘
-                        │
-        ┌───────────────┴───────────────┐
-        ▼                               ▼
-┌─────────────────────────┐             ┌─────────────────────┐
-│  AdsConnectionManager   │             │ AdsDataSynchronizer │
-│  - Lifecycle management │             │ - Variable mapping  │
-│  - Reconnection logic   │             │ - Handle generation │
-│  - State monitoring (2s)│             │ - Read/Write ops    │
-└─────────────────────────┘             └─────────────────────┘
-                                                  │
-             ┌────────────────────────────────────┼──┐
-             ▼                  ▼                    ▼
-      ┌────────────┐    ┌───────────────┐    ┌────────────────┐
-      │Marshalling │    │ AdsReadMapper │    │ AdsWriteMapper │
-      └────────────┘    └───────────────┘    └────────────────┘
+    ┌─────────────────────────────────────────────────────────────┐
+    │                      AdsSyncClient                          │
+    │  - Public API for sync activation/deactivation              │
+    │  - Connection state proxy (IsConnected, IsActive)           │
+    │  - Event aggregation (ConnectionError, CommunicationError)  │
+    └───────────────────────┬─────────────────────────────────────┘
+                            │
+            ┌───────────────┴───────────────┐
+            ▼                               ▼
+    ┌─────────────────────────┐             ┌─────────────────────┐
+    │  AdsConnectionManager   │             │ AdsDataSynchronizer │
+    │  - Lifecycle management │             │ - Variable mapping  │
+    │  - Reconnection logic   │             │ - Handle generation │
+    │  - State monitoring (2s)│             │ - Read/Write ops    │
+    └─────────────────────────┘             └─────────────────────┘
+                                                      │
+                 ┌────────────────────────────────────┼──┐
+                 ▼                  ▼                    ▼
+          ┌────────────┐    ┌───────────────┐    ┌────────────────┐
+          │Marshalling │    │ AdsReadMapper │    │ AdsWriteMapper │
+          └────────────┘    └───────────────┘    └────────────────┘
+
 
 ## Currently supported Data Types
 
@@ -189,7 +199,7 @@ In header of Main.prg:
 | `double`               | `LREAL (R8)`  | 8 bytes, IEEE 754                 |
 | `string`               | `STRING[80]`  | 80 chars + null terminator        |
 | `ObservableCollection` | `ARRAY`       | Dynamic arrays with type tracking |
-|------------------------|---------------|-----------------------------------|
+
 
 ## License 
 

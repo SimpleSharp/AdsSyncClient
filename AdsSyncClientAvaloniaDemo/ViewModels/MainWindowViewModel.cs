@@ -1,20 +1,22 @@
 ﻿using AdsSync;
-using AdsSyncClientDemo.Models;
+using AdsSyncClientAvaloniaDemo.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using TwinCAT.Ads;
 
-namespace AdsSyncClientDemo.ViewModels
+namespace AdsSyncClientAvaloniaDemo.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject, IAsyncDisposable
     {
         #region properties
         /// <summary> Read data from the ads client </summary>
-        [ObservableProperty] private ObservableCollection<string> readProperties = [];
+        [ObservableProperty] private ObservableCollection<PropertyItem> dataFromClientRows = [];
         /// <summary> Write data to the ads client </summary>
-        [ObservableProperty] private ObservableCollection<string> writtenProperties = [];
+        [ObservableProperty] private ObservableCollection<PropertyItem> dataToClientRows = [];
         /// <summary> ADS client used for communication </summary>
         [ObservableProperty] private AdsSyncClient syncClient;
         /// <summary> The net id of the client (127.0.0.1.1.1 is for local TwinCAT applications) </summary>
@@ -25,9 +27,7 @@ namespace AdsSyncClientDemo.ViewModels
         [ObservableProperty] private DataToClient dataToClient = new();
         /// <summary> Data to be read from the client </summary>
         [ObservableProperty] private DataFromClient dataFromClient = new();
-        [ObservableProperty] private ObservableCollection<PropertyItem> dataToClientRows = [];
 
-        [ObservableProperty]  private ObservableCollection<PropertyItem> dataFromClientRows = [];
         #endregion
 
         #region commands

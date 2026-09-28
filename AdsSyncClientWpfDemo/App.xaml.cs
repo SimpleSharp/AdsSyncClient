@@ -1,8 +1,8 @@
 ﻿using System.Windows;
-using AdsSyncClientDemo.ViewModels;
-using AdsSyncClientDemo.Views;
+using AdsSyncClientWpfDemo.ViewModels;
+using AdsSyncClientWpfDemo.Views;
 
-namespace AdsSyncClientDemo
+namespace AdsSyncClientWpfDemo
 {
     /// <summary>
     /// Interaction logic for App.xaml

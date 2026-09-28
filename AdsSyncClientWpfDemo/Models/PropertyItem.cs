@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 
-namespace AdsSyncClientDemo.Models
+namespace AdsSyncClientWpfDemo.Models
 {
     /// <summary>
     /// Represents a property of a source object and exposes its current value.

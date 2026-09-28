@@ -1,8 +1,8 @@
-﻿<Application x:Class="AdsSyncClientDemo.App"
+﻿<Application x:Class="AdsSyncClientWpfDemo.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AdsSyncClientDemo"
-             xmlns:converters="clr-namespace:AdsSyncClientDemo.Converters"
+             xmlns:local="clr-namespace:AdsSyncClientWpfDemo"
+             xmlns:converters="clr-namespace:AdsSyncClientWpfDemo.Converters"
              Startup="OnStartup">
     <Application.Resources>
         <ResourceDictionary>

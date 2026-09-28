@@ -1,0 +1,23 @@
+﻿<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AdsSyncClientAvaloniaDemo.App"
+             xmlns:local="using:AdsSyncClientAvaloniaDemo"
+             xmlns:converters="using:AdsSyncClientAvaloniaDemo.Converters"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://AdsSyncClientAvaloniaDemo/Styles/Button.axaml" />
+        <StyleInclude Source="avares://AdsSyncClientAvaloniaDemo/Styles/TextBox.axaml" />
+        <StyleInclude Source="avares://AdsSyncClientAvaloniaDemo/Styles/TextBlock.axaml" />
+    </Application.Styles>
+    
+    <Application.Resources>
+        <converters:IsFalseConverter x:Key="IsFalseConverter" />
+    </Application.Resources>
+</Application>

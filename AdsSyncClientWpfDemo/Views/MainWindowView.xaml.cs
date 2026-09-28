@@ -1,7 +1,8 @@
 ﻿using System.Windows;
 using AdsSync.Exceptions;
-using AdsSyncClientDemo.ViewModels;
-namespace AdsSyncClientDemo.Views
+using AdsSyncClientWpfDemo.ViewModels;
+
+namespace AdsSyncClientWpfDemo.Views
 {
     public partial class MainWindowView : Window
     {

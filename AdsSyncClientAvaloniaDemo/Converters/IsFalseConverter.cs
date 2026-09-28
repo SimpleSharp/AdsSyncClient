@@ -1,7 +1,8 @@
-﻿using System.Globalization;
-using System.Windows.Data;
+﻿using System;
+using System.Globalization;
+using Avalonia.Data.Converters;
 
-namespace AdsSyncClientDemo.Converters
+namespace AdsSyncClientAvaloniaDemo.Converters
 {
     /// <summary>
     /// This converter negates a boolean value.
@@ -11,7 +12,7 @@ namespace AdsSyncClientDemo.Converters
         /// <summary>
         /// Returns TRUE if the value is a boolean and the value is FALSE.
         /// </summary>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type? targetType, object? parameter, CultureInfo? culture)
         {
             return value is bool boolean && !boolean;
         }

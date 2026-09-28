@@ -47,10 +47,11 @@ The entire code is annotated with XML comments to make everything as clear as po
 
 ## Solution Structure
 
-* **AdsSync:** The library
-* **AdsSyncClientDemo:** A simple WPF MVVM application to illustrate the integration of the library
-* **AdsSyncClientPlcDemo:** A simple TwinCAT PLC application and the counterpart to AdsSyncClientDemo
-* **UnitTest:** a Unit test (work in progress) using XUnit
+* **`AdsSync`:** The library
+* **`AdsSyncClientWpfDemo`:** A simple WPF MVVM application to illustrate the integration of the library
+* **`AdsSyncClientAvaloniaDemo`:** A simple Avalonia MVVM application to illustrate the integration of the library (for future cross plattform functionality)
+* **`AdsSyncClientPlcDemo`:** A simple TwinCAT PLC application and the counterpart to AdsSyncClientWpfDemo / AdsSyncClientPlcDemo
+* **`UnitTest`:** a Unit test (work in progress) using XUnit
 
 
 ## .NET Data Object Requirements
@@ -103,7 +104,7 @@ In the application:
     PlcDataModel dataToSend = new();
     PlcDataModel dataFromPlc = new();
 
-    AdsSyncClient adsClient = new(new AmsAddress("192.168.1.100", 851),
+    AdsSyncClient adsClient = new(new AmsAddress("127.0.0.1.1.1", 851),
                                   dataToSend,
                                   dataFromPlc,
                                   "MainProgram.DataToPLC",      // Struct name in TwinCAT

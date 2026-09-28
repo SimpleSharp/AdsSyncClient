@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Beckhoff.TwinCAT.Ads" Version="7.0.339" />
+		<PackageReference Include="Beckhoff.TwinCAT.Ads.TcpRouter" Version="7.0.371" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 	</ItemGroup>
 

@@ -47,11 +47,13 @@ The entire code is annotated with XML comments to make everything as clear as po
 
 ## Solution Structure
 
-* **`AdsSync`:** The library
-* **`AdsSyncClientWpfDemo`:** A simple WPF MVVM application to illustrate the integration of the library
-* **`AdsSyncClientAvaloniaDemo`:** A simple Avalonia MVVM application to illustrate the integration of the library (for future cross plattform functionality)
-* **`AdsSyncClientPlcDemo`:** A simple TwinCAT PLC application and the counterpart to AdsSyncClientWpfDemo / AdsSyncClientPlcDemo
-* **`UnitTest`:** a Unit test (work in progress) using XUnit
+| Project                       | Description                                                                                                               |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| **AdsSync**                   | The library itself                                                                                                        |
+| **AdsSyncClientWpfDemo**      | Simple WPF MVVM application to illustrate the integration of the library                                                  |
+| **AdsSyncClientAvaloniaDemo** | Simple Avalonia MVVM application to illustrate the integration of the library (for future cross plattform functionality)  |
+| **AdsSyncClientPlcDemo**      | Simple TwinCAT PLC application and the counterpart to AdsSyncClientWpfDemo / AdsSyncClientPlcDemo                         |
+| **UnitTest**                  | Unit Test (work in progress) using XUnit                                                                                  |
 
 
 ## .NET Data Object Requirements

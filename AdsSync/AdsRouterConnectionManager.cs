@@ -8,7 +8,7 @@ namespace AdsSync
     /// <summary>
     /// Manages the ADS connection lifecycle, state monitoring, and reconnection logic.
     /// </summary>
-    internal partial class AdsConnectionManager : ObservableObject, IAsyncDisposable
+    internal partial class AdsRouterConnectionManager : ObservableObject, IAsyncDisposable
     {
         #region properties
         /// <summary> Status of the ADS client's hardware </summary>
@@ -59,9 +59,9 @@ namespace AdsSync
         /// <param name="adsClient"> The ADS client </param>
         /// <param name="netId"> The Net ID of this device </param>
         /// <param name="amsAddress"> The address of the ADS client </param>
-        public AdsConnectionManager(IAdsConnectAddress adsClient,
-                                    AmsNetId netId,
-                                    AmsAddress amsAddress)
+        public AdsRouterConnectionManager(IAdsConnectAddress adsClient,
+                                          AmsNetId netId,
+                                          AmsAddress amsAddress)
         {
             this.adsClient = adsClient;
             this.amsAddress = amsAddress;

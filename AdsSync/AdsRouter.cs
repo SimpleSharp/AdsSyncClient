@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using AdsSync.Exceptions;
+using System.Net;
 using TwinCAT.Ads;
 using TwinCAT.Ads.Configuration;
 using TwinCAT.Ads.TcpRouter;

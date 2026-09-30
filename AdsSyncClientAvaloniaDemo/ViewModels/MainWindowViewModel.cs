@@ -61,7 +61,9 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         {
             StartSyncCommand = new RelayCommand(async () => await StartSyncAsync());
             StopSyncCommand = new RelayCommand(async () => await StopSyncAsync());
-            SyncClient = new(new("127.0.0.1.1.1"),
+            SyncClient = new(new AdsClient(),
+                             new("10.44.223.101.1.1", 851),
+                             new("10.44.223.102.1.1"),
                              DataToClient, DataFromClient,
                              structNameDataToClient,
                              structNameDataFromClient);

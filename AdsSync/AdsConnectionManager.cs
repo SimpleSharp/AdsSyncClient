@@ -46,8 +46,6 @@ namespace AdsSync
         private bool wasConnected;
         /// <summary> Prevents the user from starting the <see cref="ConnectAsync"/> multiple times  </summary>
         private readonly SemaphoreSlim connectLock = new(1, 1);
-        /// <summary> ADS TCP/IP router as a replacement for a local installed XAR Runtime </summary>
-        private readonly AdsRouter router;
         /// <summary> Indicates whether the object has been disposed </summary>
         private bool disposed;
         #endregion
@@ -57,15 +55,18 @@ namespace AdsSync
         /// Constructor
         /// </summary>
         /// <param name="adsClient"> The ADS client </param>
-        /// <param name="netId"> The Net ID of this device </param>
+        public AdsConnectionManager(IAdsConnectAddress adsClient) : this(adsClient, AmsAddress.Empty) { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="adsClient"> The ADS client </param>
         /// <param name="amsAddress"> The address of the ADS client </param>
         public AdsConnectionManager(IAdsConnectAddress adsClient,
-                                    AmsNetId netId,
                                     AmsAddress amsAddress)
         {
             this.adsClient = adsClient;
             this.amsAddress = amsAddress;
-            router = new(amsAddress.NetId, netId);
             timer.Elapsed += TimerTick;
         }
         #endregion
@@ -103,7 +104,6 @@ namespace AdsSync
                 try
                 {
                     using CancellationTokenSource cts = new(TimeSpan.FromSeconds(5));
-                    await router.StartAsync();
                     await adsClient.ConnectAsync(amsAddress, cts.Token);
                 }
                 catch (OperationCanceledException)
@@ -152,7 +152,6 @@ namespace AdsSync
             await tokenSource.CancelAsync();
             using CancellationTokenSource cts = new(TimeSpan.FromSeconds(2));
             await adsClient.DisconnectAsync(cts.Token);
-            router.Stop();
             if (!adsClient.IsConnected && wasConnected)
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);

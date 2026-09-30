@@ -14,6 +14,8 @@ namespace AdsSync
         #region fields & events
         /// <summary> The TCPIP router for replacing the TwinCAT Runtime </summary>
         public readonly AmsTcpIpRouter router;
+        /// <summary> Local Net ID </summary>
+        public readonly AmsNetId netId;
         #endregion
 
         #region constructors

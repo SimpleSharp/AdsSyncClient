@@ -59,7 +59,7 @@
                  Grid.Row="3"
                  Grid.Column="3"
                  Text="{Binding NetId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                 IsEnabled="{Binding SyncClient.IsConnected, Converter={StaticResource IsFalseConverter}}"
+                 IsEnabled="{Binding SyncClient.IsActive, Converter={StaticResource IsFalseConverter}}"
                  HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center" />
         <Button x:Name="ButtonActivate"
@@ -197,7 +197,7 @@
                  Grid.Row="5"
                  Grid.Column="3"
                  Text="{Binding Port, Mode=TwoWay}"
-                 IsEnabled="{Binding SyncClient.IsConnected, Converter={StaticResource IsFalseConverter}}"
+                 IsEnabled="{Binding SyncClient.IsActive, Converter={StaticResource IsFalseConverter}}"
                  HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center" />
     </Grid>

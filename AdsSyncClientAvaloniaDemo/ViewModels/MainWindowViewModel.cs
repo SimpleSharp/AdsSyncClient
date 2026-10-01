@@ -9,8 +9,13 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
+using TwinCAT.Router;
 
 namespace AdsSyncClientAvaloniaDemo.ViewModels
 {
@@ -47,6 +52,8 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         private const string structNameDataFromClient = "GVL.DataToHmi";
         /// <summary> Name of the client structure containing data to be read </summary>
         private const string structNameDataToClient = "GVL.DataFromHmi";
+        /// <summary> The TCP port used by ADS routers </summary>
+        private const int RouterPort = 48898;
         #endregion
 
         #region fields & events
@@ -82,7 +89,17 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
                     });
             });
             AdsSyncDefinition syncDefinition = new(DataToClient, DataFromClient, structNameDataToClient, structNameDataFromClient);
-            SyncClient = new(syncDefinition, new AmsAddress("192.168.20.34.1.1", 851), loggerFactory);
+            if (EnsureRouterPortIsFree())
+            {
+                RouterConfiguration config = new(AmsNetId.Parse("10.44.223.102.1.1"),
+                                                 IPAddress.Parse("10.44.223.123"),
+                                                 new AmsAddress("10.44.223.123.1.1", 851));
+                SyncClient = new(syncDefinition, config, loggerFactory);
+            }
+            else
+            {
+                SyncClient = new(syncDefinition, new AmsAddress("192.168.20.34.1.1", 851), loggerFactory);
+            }
             _ = SetNewValuesAsync();
             CreatePropertyRows(DataToClient, DataToClientRows);
             CreatePropertyRows(DataFromClient, DataFromClientRows);
@@ -110,6 +127,17 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         }
 
         /// <summary>
+        /// Verifies that the ADS router port is not already in use on this machine.
+        /// </summary>
+        /// <exception cref="IOException"> Thrown when the ADS router port 48898 is already in use. This usually
+        /// means that a TwinCAT router is running locally, in which case an in-process router is not required. </exception>
+        private static bool EnsureRouterPortIsFree()
+        {
+            IPEndPoint[] activeListeners = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            return activeListeners.All(listener => listener.Port != RouterPort);
+        }
+
+        /// <summary>
         /// Starts the sync with the ads client
         /// </summary>
         /// <returns></returns>
@@ -134,7 +162,15 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
                 InvalidNetIdEntered?.Invoke(NetId, EventArgs.Empty);
                 return;
             }
-            _ = await SyncClient.ActivateSync(new(NetId, port));
+
+            if (SyncClient.UsesInProcessRouter)
+            {
+                _ = await SyncClient.ActivateSync();
+            }
+            else
+            {
+                _ = await SyncClient.ActivateSync(new(NetId, port));
+            }
         }
 
         /// <summary>

@@ -107,26 +107,31 @@ namespace AdsSync
                     return;
                 }
                 tokenSource = new CancellationTokenSource();
-                // 1. The actual TCP/IP router
-                router = new AmsTcpIpRouter(configuration.LocalNetId,
-                                            RouterPort,
-                                            null,
-                                            RouterPort,
-                                            (IPNetwork?)null,
-                                            loggerFactory);
+                //router = new AmsTcpIpRouter(
+                //    configuration.LocalNetId,
+                //    RouterPort,
+                //    null,
+                //    RouterPort,
+                //    (IPNetwork?)null,
+                //    48899,
+                //    loggerFactory);
+                router = new AmsTcpIpRouter(
+                    configuration.LocalNetId,
+                    loggerFactory);
+                string targetIp = string.Join(".", configuration.TargetAddress.NetId.ToString().Split('.').Take(4));
+                Route route = new("WIN-152CIDFLFCG", configuration.TargetAddress.NetId, [IPAddress.Parse(targetIp)]);
+                router.AddRoute(route);
                 routerTask = router.StartAsync(tokenSource.Token);
+                //await router.StartAsync(tokenSource.Token);
                 // 2. The ADS router server (AMS port 1)
                 routerServer = new AdsRouterServer(router, loggerFactory);
                 routerServerTask = routerServer.ConnectServerAndWaitAsync(tokenSource.Token);
                 // 3. The system service server (AMS port 10000)
                 systemService = new SystemServiceServer(router, loggerFactory);
                 systemServiceTask = systemService.ConnectServerAndWaitAsync(tokenSource.Token);
+                await Task.WhenAll(routerTask, routerServerTask, systemServiceTask);
                 // 4. The route to the target system
                 // NOTE: Extracts the first four octets from TargetAddress.NetId to build the destination IP for the route
-                string targetIp = string.Join(".", configuration.TargetAddress.NetId.ToString().Split('.').Take(4));
-                Route route = new("AdsSyncClient", configuration.TargetAddress.NetId,
-                                  [IPAddress.Parse(targetIp)]);
-                router.AddRoute(route);
                 ObserveBackgroundTask(routerTask!, nameof(AmsTcpIpRouter));
                 ObserveBackgroundTask(routerServerTask!, nameof(AdsRouterServer));
                 ObserveBackgroundTask(systemServiceTask!, nameof(SystemServiceServer));

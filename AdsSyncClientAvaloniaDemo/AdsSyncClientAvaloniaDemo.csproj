@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-    <Folder Include="Styles\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +22,8 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>

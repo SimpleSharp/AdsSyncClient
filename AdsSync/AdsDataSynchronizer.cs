@@ -1,6 +1,8 @@
 ﻿using AdsSync.Exceptions;
 using AdsSync.Mapping;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -38,6 +40,8 @@ namespace AdsSync
         private readonly CancellationTokenSource tokenSource = new();
         /// <summary> Serializes collection updates to prevent race conditions (Read vs Write) </summary>
         private readonly SemaphoreSlim _collectionUpdateLock = new(1, 1);
+        /// <summary> Logger for diagnostics </summary>
+        private readonly ILogger logger;
         /// <summary> Suppresses Write events during ADS read operations to prevent recursive updates </summary>
         private bool isUpdatingFromAds;
         /// <summary> Indicates whether the object has been disposed </summary>
@@ -55,11 +59,17 @@ namespace AdsSync
         /// </summary>
         /// <param name="adsClient"> The ADS client </param>
         /// <param name="definition"> The definition of the data exchange </param>
-        public AdsDataSynchronizer(IAdsConnectAddress adsClient, AdsSyncDefinition definition)
+        /// <param name="loggerFactory"> Optional logger factory for diagnostics. If null, logging is disabled. </param>
+        public AdsDataSynchronizer(IAdsConnectAddress adsClient,
+                                   AdsSyncDefinition definition,
+                                   ILoggerFactory? loggerFactory = null)
         {
             this.adsClient = adsClient;
             adsDataMapperRead = new(definition.DataFromAdsClient, definition.StructNameDataFromClient);
             adsDataMapperWrite = new(definition.DataToAdsClient, definition.StructNameDataToClient);
+            logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AdsDataSynchronizer>();
+            logger.LogDebug("AdsDataSynchronizer created. Read struct: '{ReadStruct}', write struct: '{WriteStruct}'.",
+                            definition.StructNameDataFromClient, definition.StructNameDataToClient);
         }
         #endregion
 
@@ -72,16 +82,21 @@ namespace AdsSync
             //Returns if its just a reconnect
             if (IsCommunicationInitialized)
             {
+                logger.LogDebug("Communication already initialized.");
                 return;
             }
+            logger.LogInformation("Initializing communication (variable and notification handles, event subscriptions).");
             //create all variable an notification handles
             await adsDataMapperRead.GenerateVariableHandlesAsync(adsClient);
             await adsDataMapperRead.GenerateNotificationHandlesAsync();
             await adsDataMapperWrite.GenerateVariableHandlesAsync(adsClient);
+            logger.LogDebug("All variable and notification handles created.");
             await InitializeStructureSyncAsync();
             if (adsDataMapperRead.NotificationHandles.Length > 0)
             {
                 adsClient.AdsNotification += Read;
+                logger.LogDebug("Registered ADS notification handler ({Count} handles).",
+                                adsDataMapperRead.NotificationHandles.Length);
             }
             //create all events to start reading and writing
             foreach (PropertyInfo propertyInfo in adsDataMapperWrite.Data.GetType().GetProperties())
@@ -106,6 +121,7 @@ namespace AdsSync
                 }
             }
             IsCommunicationInitialized = true;
+            logger.LogInformation("Communication initialized.");
         }
 
         /// <summary>
@@ -115,8 +131,10 @@ namespace AdsSync
         {
             if (!IsCommunicationInitialized)
             {
+                logger.LogDebug("Communication not initialized, nothing to stop.");
                 return;
             }
+            logger.LogInformation("Stopping communication.");
             //deletes all variable an notification handles
             if (adsDataMapperRead.NotificationHandles.Length > 0)
             {
@@ -127,6 +145,7 @@ namespace AdsSync
                 await adsDataMapperRead.DeleteAllVariableHandlesAsync();
                 await adsDataMapperRead.DeleteAllNotificationsHandlesAsync();
                 await adsDataMapperWrite.DeleteAllVariableHandlesAsync();
+                logger.LogDebug("All variable and notification handles deleted.");
             }
             //Unregisters all observable collection events to stop reading and writing
             if (collectionHandlers.Count > 0)
@@ -148,6 +167,7 @@ namespace AdsSync
                 }
             }
             IsCommunicationInitialized = false;
+            logger.LogInformation("Communication stopped.");
         }
 
         /// <summary>
@@ -187,6 +207,7 @@ namespace AdsSync
         /// </summary>
         private async Task InitializeStructureSyncAsync()
         {
+            logger.LogDebug("Executing initial structure sync.");
             //Writes all data into the client
             Marshalling.UpdateFieldClassValuesFromProperties(adsDataMapperWrite.DataAsMarshalledClass, adsDataMapperWrite.Data);
             for (int i1 = 0; i1 < adsDataMapperWrite.VariableHandles.Length; i1++)
@@ -206,7 +227,6 @@ namespace AdsSync
                         readValue = ClientArrayToObservableCollection(readValue, adsDataMapperRead.PropertyInfos[i1]);
                     }
                     adsDataMapperRead.PropertyInfos[i1].SetValue(adsDataMapperRead.Data, readValue);
-
                 }
                 catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException or ClientNotConnectedException ||
                                            ex is AdsErrorException adsEx && (adsEx.ErrorCode == AdsErrorCode.ClientSyncTimeOut ||
@@ -214,11 +234,19 @@ namespace AdsSync
                                                                              adsEx.ErrorCode == AdsErrorCode.TargetPortNotFound))
                 {
                     //Communication terminated
+                    logger.LogDebug(ex, "Read of '{FieldName}' aborted (communication terminated).",
+                                    adsDataMapperRead.PropertyInfos[i1].Name);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogWarning(ex, "Read of '{FieldName}' during initial sync failed.",
+                                      adsDataMapperRead.PropertyInfos[i1].Name);
                     exceptions.Add(new("Error while reading value of handle: " + adsDataMapperRead.VariableHandles[i1].ToString()));
                 }
+            }
+            if (exceptions.Count > 0)
+            {
+                logger.LogWarning("{Count} fields could not be read during the initial sync.", exceptions.Count);
             }
         }
 
@@ -259,7 +287,7 @@ namespace AdsSync
         /// Releases all resources used by this instance. It is recommended to call the <see cref="StopCommunicationAsync()"/>
         /// task before disposing of this instance.
         /// </summary>
-        /// <param name="disposing"> Disposes this istance if TRUE </param>
+        /// <param name="disposing"> Disposes this instance if TRUE </param>
         protected async ValueTask DisposeAsync(bool disposing)
         {
             if (disposed)
@@ -268,12 +296,13 @@ namespace AdsSync
             }
             if (disposing)
             {
+                logger.LogDebug("Disposing AdsDataSynchronizer.");
                 await tokenSource.CancelAsync();
                 tokenSource.Dispose();
                 _collectionUpdateLock.Dispose();
                 if (adsClient.IsConnected && IsCommunicationInitialized)
                 {
-                     await StopCommunicationAsync();
+                    await StopCommunicationAsync();
                 }
                 await adsDataMapperRead.DisposeAsync();
                 await adsDataMapperWrite.DisposeAsync();
@@ -315,9 +344,11 @@ namespace AdsSync
                                                                          adsEx.ErrorCode == AdsErrorCode.TargetPortNotFound))
             {
                 //Communication terminated
+                logger.LogDebug(ex, "Write of '{CollectionName}' aborted (communication terminated).", collectionName);
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Write of collection '{CollectionName}' failed.", collectionName);
                 CommunicationError?.Invoke(this, new CommunicationErrorEventArgs(ex, collectionName, false, true));
             }
         }
@@ -348,6 +379,10 @@ namespace AdsSync
                 }
                 adsDataMapperWrite.FieldInfos[index].SetValue(adsDataMapperWrite.DataAsMarshalledClass, value);
                 ResultWrite result = await adsClient.WriteAnyAsync(adsDataMapperWrite.VariableHandles[index], value, tokenSource.Token);
+                if (!result.Succeeded)
+                {
+                    logger.LogWarning("Write of '{PropertyName}' failed with {ErrorCode}.", name, result.ErrorCode);
+                }
                 return result.ErrorCode;
             }
             return AdsErrorCode.NoError;
@@ -378,15 +413,18 @@ namespace AdsSync
                                                                          adsEx.ErrorCode == AdsErrorCode.TargetPortNotFound))
             {
                 //Communication terminated
+                logger.LogDebug(ex, "Write aborted (communication terminated).");
             }
             catch (Exception ex)
             {
                 if (e is PropertyChangedEventArgs pe && !string.IsNullOrEmpty(pe.PropertyName))
                 {
+                    logger.LogError(ex, "Write of property '{PropertyName}' failed.", pe.PropertyName);
                     CommunicationError?.Invoke(this, new CommunicationErrorEventArgs(ex, pe.PropertyName, false, true));
                 }
                 else
                 {
+                    logger.LogError(ex, "Write failed, property name not found.");
                     CommunicationError?.Invoke(this, new CommunicationErrorEventArgs(ex, "Name not found", false, true));
                 }
             }
@@ -432,9 +470,13 @@ namespace AdsSync
                                                                          adsEx.ErrorCode == AdsErrorCode.TargetPortNotFound))
             {
                 //Communication terminated
+                logger.LogDebug(ex, "Notification read of '{PropertyName}' aborted (communication terminated).",
+                                adsDataMapperRead.PropertyInfos[index].Name);
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Notification read of '{PropertyName}' failed.",
+                                adsDataMapperRead.PropertyInfos[index].Name);
                 CommunicationError?.Invoke(this, new CommunicationErrorEventArgs(ex, adsDataMapperRead.PropertyInfos[index].Name, true, false));
             }
         }

@@ -1,5 +1,7 @@
 ﻿using AdsSync.Exceptions;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Timers;
 using TwinCAT.Ads;
 
@@ -24,6 +26,10 @@ namespace AdsSync
         #region fields & events
         /// <summary> Event raised when an exception is thrown in a background task </summary>
         public event EventHandler<ConnectionErrorEventArgs>? ConnectionError;
+        /// <summary> Event raised when connected </summary>
+        public event EventHandler? Connected;
+        /// <summary> Event raised when disconnected </summary>
+        public event EventHandler? Disconnected;
         /// <summary> The ADS client </summary>
         private readonly IAdsConnectAddress adsClient;
         /// <summary> The ADS client for checking the hardware state </summary>
@@ -32,19 +38,17 @@ namespace AdsSync
         private IAdsConnectAddress? adsClientSoftwareState;
         /// <summary> The address of the ADS client </summary>
         private AmsAddress amsAddress;
+        /// <summary> Logger for diagnostics </summary>
+        private readonly ILogger logger;
         /// <summary> Cancellation token source for terminating the communication </summary>
         private CancellationTokenSource tokenSource = new();
         /// <summary> Timer for checking the ADS client state </summary>
         private System.Timers.Timer timer = new(TimeSpan.FromSeconds(2));
         /// <summary> Indicates whether a reconnection is needed </summary>
         private bool isReconnectNeeded;
-        /// <summary> Event raised when connected </summary>
-        public event EventHandler? Connected;
-        /// <summary> Event raised when disconnected </summary>
-        public event EventHandler? Disconnected;
         /// <summary> Indicates whether the ADS client was connected </summary>
         private bool wasConnected;
-        /// <summary> Prevents the user from starting the <see cref="ConnectAsync"/> multiple times  </summary>
+        /// <summary> Prevents the user from starting the <see cref="ConnectAsync"/> multiple times </summary>
         private readonly SemaphoreSlim connectLock = new(1, 1);
         /// <summary> Indicates whether the object has been disposed </summary>
         private bool disposed;
@@ -63,18 +67,31 @@ namespace AdsSync
         /// <param name="adsClient"> The ADS client </param>
         /// <param name="amsAddress"> The address of the ADS client </param>
         public AdsConnectionManager(IAdsConnectAddress adsClient,
-                                    AmsAddress amsAddress)
+                                    AmsAddress amsAddress) : this(adsClient, amsAddress, null) { }
+
+        /// <summary>
+        /// Constructor with an optional logger factory
+        /// </summary>
+        /// <param name="adsClient"> The ADS client </param>
+        /// <param name="amsAddress"> The address of the ADS client </param>
+        /// <param name="loggerFactory"> Optional logger factory for diagnostics. If null, logging is disabled. </param>
+        public AdsConnectionManager(IAdsConnectAddress adsClient,
+                                    AmsAddress amsAddress,
+                                    ILoggerFactory? loggerFactory)
         {
             this.adsClient = adsClient;
             this.amsAddress = amsAddress;
+            logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AdsConnectionManager>();
             timer.Elapsed += TimerTick;
+            logger.LogDebug("AdsConnectionManager created for NetId '{NetId}', Port {Port}.",
+                            amsAddress.NetId, amsAddress.Port);
         }
         #endregion
 
-        #region  public methods and tasks
+        #region public methods and tasks
         /// <summary>
-        /// Releases all resources used by this instance. It is recommended to use  <see cref="DisconnectAsync"/> 
-        /// before using <see cref="DisposeAsync()"/> .
+        /// Releases all resources used by this instance. It is recommended to use <see cref="DisconnectAsync"/>
+        /// before using <see cref="DisposeAsync()"/>.
         /// </summary>
         public async ValueTask DisposeAsync()
         {
@@ -83,7 +100,7 @@ namespace AdsSync
         }
 
         /// <summary>
-        /// Tries to establich a connection the ADS client. It also starts a cyclic reconnection if the connection fails.
+        /// Tries to establish a connection to the ADS client. It also starts a cyclic reconnection if the connection fails.
         /// </summary>
         /// <returns> Returns TRUE if the connection is established. </returns>
         public async Task<bool> ConnectAsync()
@@ -104,12 +121,15 @@ namespace AdsSync
                 try
                 {
                     using CancellationTokenSource cts = new(TimeSpan.FromSeconds(5));
+                    logger.LogInformation("Connecting to ADS client at {NetId}:{Port}...",
+                                          amsAddress.NetId, amsAddress.Port);
                     await adsClient.ConnectAsync(amsAddress, cts.Token);
                 }
                 catch (OperationCanceledException)
                 {
                     IsConnected = false;
                     wasConnected = false;
+                    logger.LogWarning("Connection attempt timed out after 5 seconds.");
                     ConnectionError?.Invoke(this, new ConnectionErrorEventArgs(new TimeoutException(), false));
                     return false;
                 }
@@ -117,6 +137,7 @@ namespace AdsSync
                 {
                     IsConnected = false;
                     wasConnected = false;
+                    logger.LogError(ex, "Connection attempt failed.");
                     ConnectionError?.Invoke(this, new ConnectionErrorEventArgs(ex, false));
                     return false;
                 }
@@ -125,10 +146,12 @@ namespace AdsSync
                 {
                     Connected?.Invoke(this, EventArgs.Empty);
                     wasConnected = true;
+                    logger.LogInformation("Connected to ADS client.");
                 }
                 else if (!IsConnected)
                 {
                     isReconnectNeeded = true;
+                    logger.LogDebug("Initial connection not established, cyclic reconnection enabled.");
                 }
                 IsActive = true;
                 timer.Start();
@@ -147,6 +170,7 @@ namespace AdsSync
         public async Task<bool> DisconnectAsync()
         {
             ObjectDisposedException.ThrowIf(disposed, this);
+            logger.LogDebug("Disconnect requested.");
             timer.Stop();
             isReconnectNeeded = false;
             await tokenSource.CancelAsync();
@@ -155,6 +179,7 @@ namespace AdsSync
             if (!adsClient.IsConnected && wasConnected)
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);
+                logger.LogInformation("Disconnected from ADS client.");
             }
             await CheckIfIsConnectedAsync();
             wasConnected = false;
@@ -167,15 +192,18 @@ namespace AdsSync
         /// </summary>
         /// <param name="newAmsAddress"> The new AMS address to update </param>
         /// <returns> Returns TRUE if the AMS address was updated. </returns>
-        /// <exception cref="ArgumentNullException"> Thrown when the new Amd Address is null. </exception>
+        /// <exception cref="ArgumentNullException"> Thrown when the new AMS address is null. </exception>
         public bool TryUpdateAmsAddress(AmsAddress newAmsAddress)
         {
             ArgumentNullException.ThrowIfNull(newAmsAddress);
             if (!IsConnected)
             {
                 amsAddress = newAmsAddress;
+                logger.LogInformation("AMS address updated to {NetId}:{Port}.",
+                                      amsAddress.NetId, amsAddress.Port);
                 return true;
             }
+            logger.LogWarning("AMS address update rejected because the client is still connected.");
             return false;
         }
         #endregion
@@ -203,9 +231,11 @@ namespace AdsSync
             catch (OperationCanceledException)
             {
                 /* Normal exit */
+                logger.LogDebug("Cyclic state check cancelled.");
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Unexpected error during cyclic state check.");
                 ConnectionError?.Invoke(this, new ConnectionErrorEventArgs(ex, true));
             }
             finally
@@ -225,20 +255,22 @@ namespace AdsSync
                 await CheckIfIsConnectedAsync();
                 if (!IsConnected)
                 {
+                    logger.LogWarning("Connection lost despite hardware/software in RUN state. Triggering reconnect.");
                     isReconnectNeeded = true;
                     await adsClient.DisconnectAsync(CancellationToken.None);
                     Disconnected?.Invoke(this, EventArgs.Empty);
-
                 }
             }
             else if (isReconnectNeeded)
             {
+                logger.LogDebug("Attempting automatic reconnection...");
                 _ = await ConnectAsync();
                 await CheckIfIsConnectedAsync();
                 isReconnectNeeded = !IsConnected;
                 if (IsConnected)
                 {
                     Connected?.Invoke(this, EventArgs.Empty);
+                    logger.LogInformation("Automatic reconnection successful.");
                 }
             }
         }
@@ -258,9 +290,11 @@ namespace AdsSync
                 StateHardware = state.Succeeded
                     ? state.State.AdsState
                     : AdsState.Invalid;
+                logger.LogTrace("Hardware state queried: {State}.", StateHardware);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogDebug(ex, "Hardware state query failed.");
                 StateHardware = AdsState.Invalid;
             }
             finally
@@ -288,9 +322,11 @@ namespace AdsSync
                 StateSoftware = state.Succeeded
                     ? state.State.AdsState
                     : AdsState.Invalid;
+                logger.LogTrace("Software state queried: {State}.", StateSoftware);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogDebug(ex, "Software state query failed.");
                 StateSoftware = AdsState.Invalid;
             }
             finally
@@ -325,8 +361,8 @@ namespace AdsSync
         }
 
         /// <summary>
-        /// Releases all resources used by this instance. It is recommended to use  <see cref="DisconnectAsync"/> 
-        /// before using <see cref="DisposeAsync()"/> .
+        /// Releases all resources used by this instance. It is recommended to use <see cref="DisconnectAsync"/>
+        /// before using <see cref="DisposeAsync()"/>.
         /// </summary>
         /// <param name="disposing"> Disposes this instance if TRUE </param>
         protected async ValueTask DisposeAsync(bool disposing)
@@ -337,6 +373,7 @@ namespace AdsSync
             }
             if (disposing)
             {
+                logger.LogDebug("Disposing AdsConnectionManager.");
                 timer.Dispose();
                 await tokenSource!.CancelAsync();
                 tokenSource.Dispose();

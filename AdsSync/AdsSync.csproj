@@ -17,6 +17,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="C:\Users\malte.dierks\.nuget\packages\beckhoff.twincat.ads.tcprouter\7.0.389\contentFiles\any\net8.0\StaticRoutes.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Beckhoff.TwinCAT.Ads" Version="7.0.389" />
 		<PackageReference Include="Beckhoff.TwinCAT.Ads.SystemServer" Version="7.0.389" />
 		<PackageReference Include="Beckhoff.TwinCAT.Ads.TcpRouter" Version="7.0.389" />

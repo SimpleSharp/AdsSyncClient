@@ -148,9 +148,9 @@ namespace AdsSync
             routerHost = routerConfiguration is null
                 ? null
                 : new RouterHost(routerConfiguration, this.loggerFactory);
-            adsDataSynchronizer = new AdsDataSynchronizer(adsClient, definition);
+            adsDataSynchronizer = new AdsDataSynchronizer(adsClient, definition, loggerFactory);
             adsDataSynchronizer.CommunicationError += OnCommunicationError;
-            connectionManager = new AdsConnectionManager(adsClient, targetAddress);
+            connectionManager = new AdsConnectionManager(adsClient, targetAddress, loggerFactory);
             connectionManager.Connected += InitializeAdsDataSynchronizer;
             connectionManager.Disconnected += StopCommunication;
             connectionManager.ConnectionError += OnConnectionError;

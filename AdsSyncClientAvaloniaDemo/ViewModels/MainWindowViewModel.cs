@@ -1,7 +1,11 @@
 ﻿using AdsSync;
 using AdsSyncClientAvaloniaDemo.Models;
+using Avalonia;
+using Avalonia.Logging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -27,6 +31,7 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         [ObservableProperty] private DataToClient dataToClient = new();
         /// <summary> Data to be read from the client </summary>
         [ObservableProperty] private DataFromClient dataFromClient = new();
+        [ObservableProperty] private ObservableCollection<string> logMessages = [];
 
         #endregion
 
@@ -49,6 +54,7 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         public event EventHandler<EventArgs>? InvalidNetIdEntered;
         /// <summary> Event raised when an invalid port was entered </summary>
         public event EventHandler<EventArgs>? InvalidPortEntered;
+        private readonly ILoggerFactory loggerFactory;
         /// <summary> Indicates whether the object has been disposed </summary>
         private bool disposed;
         #endregion
@@ -61,8 +67,22 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         {
             StartSyncCommand = new RelayCommand(async () => await StartSyncAsync());
             StopSyncCommand = new RelayCommand(async () => await StopSyncAsync());
+            LogSink sink = new(msg => Dispatcher.UIThread.Post(() => {
+                LogMessages.Add(msg);
+            }));
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .SetMinimumLevel(LogLevel.Debug)
+                    .AddProvider(new UiLoggerProvider(sink))
+                    .AddSimpleConsole(options =>
+                    {
+                        options.SingleLine = true;
+                        options.TimestampFormat = "HH:mm:ss.fff ";
+                    });
+            });
             AdsSyncDefinition syncDefinition = new(DataToClient, DataFromClient, structNameDataToClient, structNameDataFromClient);
-            SyncClient = new(syncDefinition, new AmsAddress("192.168.20.34.1.1", 851), null);
+            SyncClient = new(syncDefinition, new AmsAddress("192.168.20.34.1.1", 851), loggerFactory);
             _ = SetNewValuesAsync();
             CreatePropertyRows(DataToClient, DataToClientRows);
             CreatePropertyRows(DataFromClient, DataFromClientRows);

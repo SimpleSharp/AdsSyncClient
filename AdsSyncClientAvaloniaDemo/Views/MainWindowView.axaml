@@ -4,17 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        d:DesignWidth="800"
-        d:DesignHeight="450"
+        d:DesignWidth="900"
+        d:DesignHeight="800"
         Width="800"
-        Height="450"
+        Height="800"
         CanResize="False"
         Background="#303030"
         x:Class="AdsSyncClientAvaloniaDemo.Views.MainWindowView"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="AdsSyncAvaloniaDemo">
-
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -36,6 +35,15 @@
             <RowDefinition Height="10*" />
             <RowDefinition Height="2*" />
             <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="5*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -49,6 +57,7 @@
             <ColumnDefinition Width="100*" />
             <ColumnDefinition Width="9*" />
         </Grid.ColumnDefinitions>
+        
         <TextBlock x:Name="TextBlockAds"
                    Grid.Row="3"
                    Grid.Column="1"
@@ -197,9 +206,17 @@
                  Grid.Row="5"
                  Grid.Column="3"
                  Text="{Binding Port, Mode=TwoWay}"
-                 IsEnabled="{Binding SyncClient.IsActive, Converter={StaticResource IsFalseConverter}}"
-                 HorizontalContentAlignment="Center"
+                     IsEnabled="{Binding SyncClient.IsActive, Converter={StaticResource IsFalseConverter}}"
+                     HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center" />
+        <ListBox Classes="log"
+                 Grid.Row="15"
+                 Grid.RowSpan="8"
+                 Grid.Column="1"
+                 Grid.ColumnSpan="7"
+                 CornerRadius="4"
+                 Background="LightCyan"
+                 Foreground="Black"
+                 ItemsSource="{Binding LogMessages}" />
     </Grid>
-
 </Window>

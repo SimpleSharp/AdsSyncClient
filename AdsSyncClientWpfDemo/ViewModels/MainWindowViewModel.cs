@@ -59,7 +59,8 @@ namespace AdsSyncClientWpfDemo.ViewModels
         {
             StartSyncCommand = new RelayCommand(async () => await StartSyncAsync());
             StopSyncCommand = new RelayCommand(async () => await StopSyncAsync());
-            SyncClient = new(DataToClient, DataFromClient, structNameDataToClient, structNameDataFromClient);
+            AdsSyncDefinition syncDefinition = new(DataToClient, DataFromClient, structNameDataToClient, structNameDataFromClient);
+            SyncClient = new(syncDefinition, new AmsAddress(NetId, 851), null);
             _ = SetNewValuesAsync();
 
             CreatePropertyRows(DataToClient, DataToClientRows);

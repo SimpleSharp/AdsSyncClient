@@ -18,7 +18,7 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         /// <summary> Write data to the ads client </summary>
         [ObservableProperty] private ObservableCollection<PropertyItem> dataToClientRows = [];
         /// <summary> ADS client used for communication </summary>
-        [ObservableProperty] private AdsRouterSyncClient syncClient;
+        [ObservableProperty] private AdsSyncClient syncClient;
         /// <summary> The net id of the client (127.0.0.1.1.1 is for local TwinCAT applications) </summary>
         [ObservableProperty] private string netId = "127.0.0.1.1.1";
         /// <summary> The port of the client (851 is the default of plc applications in TwinCAT) </summary>
@@ -61,12 +61,8 @@ namespace AdsSyncClientAvaloniaDemo.ViewModels
         {
             StartSyncCommand = new RelayCommand(async () => await StartSyncAsync());
             StopSyncCommand = new RelayCommand(async () => await StopSyncAsync());
-            SyncClient = new(new AdsClient(),
-                             new("10.44.223.101.1.1", 851),
-                             new("10.44.223.102.1.1"),
-                             DataToClient, DataFromClient,
-                             structNameDataToClient,
-                             structNameDataFromClient);
+            AdsSyncDefinition syncDefinition = new(DataToClient, DataFromClient, structNameDataToClient, structNameDataFromClient);
+            SyncClient = new(syncDefinition, new AmsAddress("192.168.20.34.1.1", 851), null);
             _ = SetNewValuesAsync();
             CreatePropertyRows(DataToClient, DataToClientRows);
             CreatePropertyRows(DataFromClient, DataFromClientRows);

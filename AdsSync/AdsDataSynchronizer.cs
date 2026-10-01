@@ -54,19 +54,12 @@ namespace AdsSync
         /// Constructor
         /// </summary>
         /// <param name="adsClient"> The ADS client </param>
-        /// <param name="dataToAdsClient"> The data to be sent to the ADS client </param>
-        /// <param name="dataFromAdsClient"> The data to be read from the ADS client </param>
-        /// <param name="structNameDataToClient"> The variable name in the ADS client to which the data is written </param>
-        /// <param name="structNameDataFromClient"> The variable name in the ADS client from which the data is read </param>
-        public AdsDataSynchronizer(IAdsConnectAddress adsClient,
-                                   INotifyPropertyChanged dataToAdsClient,
-                                   INotifyPropertyChanged dataFromAdsClient,
-                                   string structNameDataToClient,
-                                   string structNameDataFromClient)
+        /// <param name="definition"> The definition of the data exchange </param>
+        public AdsDataSynchronizer(IAdsConnectAddress adsClient, AdsSyncDefinition definition)
         {
             this.adsClient = adsClient;
-            adsDataMapperRead = new(dataFromAdsClient, structNameDataFromClient);
-            adsDataMapperWrite = new(dataToAdsClient, structNameDataToClient);
+            adsDataMapperRead = new(definition.DataFromAdsClient, definition.StructNameDataFromClient);
+            adsDataMapperWrite = new(definition.DataToAdsClient, definition.StructNameDataToClient);
         }
         #endregion
 

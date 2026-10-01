@@ -214,7 +214,6 @@
                  Grid.RowSpan="8"
                  Grid.Column="1"
                  Grid.ColumnSpan="7"
-                 CornerRadius="4"
                  Background="LightCyan"
                  Foreground="Black"
                  ItemsSource="{Binding LogMessages}" />
